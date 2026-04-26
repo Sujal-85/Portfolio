@@ -15,25 +15,37 @@ function useInView(ref) {
   return seen;
 }
 
-function SkillCard({ name, level, idx }) {
+function Logo({ src, name, invert }) {
+  const [err, setErr] = useState(false);
+  if (err || !src) {
+    return (
+      <div className="w-9 h-9 rounded-lg grid place-items-center bg-white/[0.06] border border-white/10 font-display font-bold text-sm text-white">
+        {name[0]}
+      </div>
+    );
+  }
+  return (
+    <div className="w-9 h-9 rounded-lg grid place-items-center bg-white/[0.04] border border-white/10">
+      <img src={src} alt={name} className="w-6 h-6 object-contain" onError={() => setErr(true)}
+        style={invert ? { filter: 'invert(1) brightness(1.4)' } : undefined} />
+    </div>
+  );
+}
+
+function SkillCard({ skill }) {
   const ref = useRef(null);
   const seen = useInView(ref);
-  const initial = name.match(/^[A-Za-z]/) ? name[0].toUpperCase() : '#';
   return (
-    <div ref={ref} className="glass rounded-2xl p-5 group hover:border-[#00D4FF]/30 transition-colors"
-      style={{ animationDelay: `${idx * 40}ms` }}>
+    <div ref={ref} className="glass rounded-2xl p-5 hover:border-[#00D4FF]/30 transition-colors">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl grid place-items-center text-sm font-display font-bold"
-          style={{ background: 'linear-gradient(135deg, rgba(108,99,255,0.25), rgba(0,212,255,0.18))', border: '1px solid rgba(255,255,255,0.08)' }}>
-          {initial}
-        </div>
+        <Logo src={skill.icon} name={skill.name} invert={skill.invert} />
         <div className="flex-1">
           <div className="flex items-center justify-between">
-            <span className="text-white/90 font-medium text-[0.95rem]">{name}</span>
-            <span className="font-mono text-xs text-white/45">{level}%</span>
+            <span className="text-white/90 font-medium text-[0.95rem]">{skill.name}</span>
+            <span className="font-mono text-xs text-white/45">{skill.level}%</span>
           </div>
           <div className="mt-2 bar-track">
-            <div className="bar-fill" style={{ width: seen ? `${level}%` : 0 }} />
+            <div className="bar-fill" style={{ width: seen ? `${skill.level}%` : 0 }} />
           </div>
         </div>
       </div>
@@ -69,7 +81,7 @@ export default function Skills() {
             <button key={c} onClick={() => setActive(c)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
                 active === c
-                  ? 'border-[#00D4FF]/60 text-white bg-[#00D4FF]/10 shadow-[0_0_20px_rgba(0,212,255,0.2)]'
+                  ? 'border-[#00D4FF]/60 text-white bg-[#00D4FF]/10 shadow-[0_0_20px_rgba(0,212,255,0.18)]'
                   : 'border-white/10 text-white/60 hover:text-white hover:border-white/25'
               }`}>
               {c}
@@ -78,7 +90,7 @@ export default function Skills() {
         </div>
 
         <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {list.map((s, i) => <SkillCard key={`${s.cat}-${s.name}`} {...s} idx={i} />)}
+          {list.map(s => <SkillCard key={`${s.cat}-${s.name}`} skill={s} />)}
         </div>
       </div>
     </section>
